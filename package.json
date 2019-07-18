@@ -1,0 +1,28 @@
+{
+  "name": "flexbox-custom-grid",
+  "version": "0.0.2",
+  "description": "A SASS based grid builder based on flexbox grid",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arschmitz/flexbox-custom-grid.git"
+  },
+  "keywords": [
+    "flexbox",
+    "grid",
+    "sass",
+    "custom",
+    "builder",
+    "breakpoints",
+    "responsive"
+  ],
+  "author": "Alexander Schmitz",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arschmitz/flexbox-custom-grid/issues"
+  },
+  "homepage": "https://github.com/arschmitz/flexbox-custom-grid#readme"
+}
