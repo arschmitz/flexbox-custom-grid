@@ -20,6 +20,11 @@
     @media (min-width: map-get($current, 'size')) and (max-width: map-get($next, 'size') - .001) {
       @content;
     }
+  } @else {
+    $current: nth($sizes, $i);
+    @media (min-width: map-get($current, 'size')) {
+      @content;
+    }
   }
 }
 
