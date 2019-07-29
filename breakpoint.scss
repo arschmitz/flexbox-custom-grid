@@ -28,12 +28,26 @@
   }
 }
 
+@mixin break ($type, $sizes, $i) {
+  @if ($type == bottom) {
+    @include bottom ($size) {
+      @content;
+    }
+  } @else {
+    @include only ($size) {
+      @content;
+    }
+  }
+}
+
 @mixin grid ($sizes) {
   @for $i from 1 through length($sizes) {
     $breakpoint: nth($sizes, $i);
     $name: map-get($breakpoint, 'name');
     $bottom: map-get($breakpoint, 'size');
     $container-width: $bottom + gutter-width;
+    $displays: flex, inline, inline-block, block;
+    $types: bottom, regular
 
     @include bottom ($bottom) {
       @if ($i != 1) {
@@ -232,49 +246,37 @@
       }
     }
 
-    .flex-column--#{$name} {
-      display: none !important;
+    @each $type in $types {
+      .flex-column-#{if($type == only, 'only-', '')}#{$name} {
+        display: none;
 
-      @include only($sizes, $i) {
-        flex-direction: column;
+        @include $break ($type, $bottom, $i) {
+          flex-direction: column;
+        }
       }
-    }
 
-    .hidden-#{$name} {
-      @include only($sizes, $i) {
-        display: none !important;
+      .hidden-#{if($type == only, 'only-', '')}#{$name} {
+        @include $break ($type, $bottom, $i) {
+          display: none;
+        }
       }
-    }
 
-    .visible-#{$name} {
-      display: none !important;
+      .visible-#{if($type == only, 'only-', '')}#{$name} {
+        display: none;
 
-      @include only($sizes, $i) {
-        display: flex !important;
+        @include $break ($type, $bottom, $i) {
+          display: initial;
+        }
       }
-    }
 
-    .visible-#{$name}-inline {
-      display: none !important;
+      @each $visibility in displays {
+        .visible-#{if($type == only, 'only-', '')}#{$name}-#{$visibility} {
+          display: none;
 
-      @include only($sizes, $i) {
-        display: inline !important;
-      }
-    }
-
-    .visible-#{$name}-inline-block {
-      display: none !important;
-
-      @include only($sizes, $i) {
-        display: inline-block !important;
-      }
-    }
-
-    .visible-#{$name}-block {
-      display: none !important;
-
-      @include only($sizes, $i) {
-        display: block !important;
+          @include $break ($type, $bottom, $i) {
+            display: $visibility;
+          }
+        }
       }
     }
   }
