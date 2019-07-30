@@ -204,7 +204,7 @@ $half-gutter-width: $gutter-width * 0.5;
         }
       }
 
-      @each $visibility in displays {
+      @each $visibility in $displays {
         .visible-#{if($type == only, 'only-', '')}#{$name}-#{$visibility} {
           display: none;
 
