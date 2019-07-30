@@ -183,7 +183,7 @@ $half-gutter-width: $gutter-width * 0.5;
 
     @each $type in $types {
       .flex-column-#{if($type == only, 'only-', '')}#{$name} {
-        display: none if($type == only, !important, unquote(''));
+        display: none !important;
 
         @include break ($type, $sizes, $bottom, $i) {
           flex-direction: column;
@@ -192,7 +192,7 @@ $half-gutter-width: $gutter-width * 0.5;
 
       .hidden-#{if($type == only, 'only-', '')}#{$name} {
         @include break ($type, $sizes, $bottom, $i) {
-          display: none if($type == only, !important, unquote(''));
+          display: none !important;
         }
       }
 
@@ -200,7 +200,7 @@ $half-gutter-width: $gutter-width * 0.5;
         display: none !important;
 
         @include break ($type, $sizes, $bottom, $i) {
-          display: initial if($type == only, !important, unquote(''));
+          display: initial !important;
         }
       }
 
@@ -209,7 +209,7 @@ $half-gutter-width: $gutter-width * 0.5;
           display: none !important;
 
           @include break ($type, $sizes, $bottom, $i) {
-            display: $visibility if($type == only, !important, unquote(''));
+            display: $visibility !important;
           }
         }
       }
