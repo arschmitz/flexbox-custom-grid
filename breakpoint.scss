@@ -28,13 +28,13 @@
   }
 }
 
-@mixin break ($type, $sizes, $i) {
+@mixin break ($type, $sizes, $bottom, $i) {
   @if ($type == bottom) {
-    @include bottom ($size) {
+    @include bottom ($bottom) {
       @content;
     }
   } @else {
-    @include only ($size) {
+    @include only ($sizes, $i) {
       @content;
     }
   }
@@ -47,7 +47,8 @@
     $bottom: map-get($breakpoint, 'size');
     $container-width: $bottom + gutter-width;
     $displays: flex, inline, inline-block, block;
-    $types: bottom, regular
+    $types: bottom, regular;
+    $division: 1 / 12 * 100;
 
     @include bottom ($bottom) {
       @if ($i != 1) {
@@ -56,36 +57,21 @@
         }
       }
 
-      .col-#{$name},
-      .col-#{$name}-1,
-      .col-#{$name}-2,
-      .col-#{$name}-3,
-      .col-#{$name}-4,
-      .col-#{$name}-5,
-      .col-#{$name}-6,
-      .col-#{$name}-7,
-      .col-#{$name}-8,
-      .col-#{$name}-9,
-      .col-#{$name}-10,
-      .col-#{$name}-11,
-      .col-#{$name}-12,
-      .col-#{$name}-offset-0,
-      .col-#{$name}-offset-1,
-      .col-#{$name}-offset-2,
-      .col-#{$name}-offset-3,
-      .col-#{$name}-offset-4,
-      .col-#{$name}-offset-5,
-      .col-#{$name}-offset-6,
-      .col-#{$name}-offset-7,
-      .col-#{$name}-offset-8,
-      .col-#{$name}-offset-9,
-      .col-#{$name}-offset-10,
-      .col-#{$name}-offset-11,
-      .col-#{$name}-offset-12 {
+      %col-style {
         box-sizing: border-box;
         flex: 0 0 auto;
         padding-right: $half-gutter-width;
         padding-left: $half-gutter-width;
+      }
+
+      @for $k from 1 through 12 {
+        .col-#{$name}-#{$k},
+        .col-#{$name}-offset-#{$k-1} {
+          @extend %col-style;
+        }
+      }
+      .col-#{$name} {
+        @extend %col-style;
       }
 
       .col-#{$name} {
@@ -94,112 +80,16 @@
         max-width: 100%;
       }
 
-      .col-#{$name}-1 {
-        flex-basis: 8.33333333%;
-        max-width: 8.33333333%;
-      }
 
-      .col-#{$name}-2 {
-        flex-basis: 16.66666667%;
-        max-width: 16.66666667%;
-      }
+      @for $j from 1 through 12 {
+        .col-#{$name}-#{$j} {
+          flex-basis: $division * $j%;
+          max-width: $division * $j%;
+        }
 
-      .col-#{$name}-3 {
-        flex-basis: 25%;
-        max-width: 25%;
-      }
-
-      .col-#{$name}-4 {
-        flex-basis: 33.33333333%;
-        max-width: 33.33333333%;
-      }
-
-      .col-#{$name}-5 {
-        flex-basis: 41.66666667%;
-        max-width: 41.66666667%;
-      }
-
-      .col-#{$name}-6 {
-        flex-basis: 50%;
-        max-width: 50%;
-      }
-
-      .col-#{$name}-7 {
-        flex-basis: 58.33333333%;
-        max-width: 58.33333333%;
-      }
-
-      .col-#{$name}-8 {
-        flex-basis: 66.66666667%;
-        max-width: 66.66666667%;
-      }
-
-      .col-#{$name}-9 {
-        flex-basis: 75%;
-        max-width: 75%;
-      }
-
-      .col-#{$name}-10 {
-        flex-basis: 83.33333333%;
-        max-width: 83.33333333%;
-      }
-
-      .col-#{$name}-11 {
-        flex-basis: 91.66666667%;
-        max-width: 91.66666667%;
-      }
-
-      .col-#{$name}-12 {
-        flex-basis: 100%;
-        max-width: 100%;
-      }
-
-      .col-#{$name}-offset-0 {
-        margin-left: 0;
-      }
-
-      .col-#{$name}-offset-1 {
-        margin-left: 8.33333333%;
-      }
-
-      .col-#{$name}-offset-2 {
-        margin-left: 16.66666667%;
-      }
-
-      .col-#{$name}-offset-3 {
-        margin-left: 25%;
-      }
-
-      .col-#{$name}-offset-4 {
-        margin-left: 33.33333333%;
-      }
-
-      .col-#{$name}-offset-5 {
-        margin-left: 41.66666667%;
-      }
-
-      .col-#{$name}-offset-6 {
-        margin-left: 50%;
-      }
-
-      .col-#{$name}-offset-7 {
-        margin-left: 58.33333333%;
-      }
-
-      .col-#{$name}-offset-8 {
-        margin-left: 66.66666667%;
-      }
-
-      .col-#{$name}-offset-9 {
-        margin-left: 75%;
-      }
-
-      .col-#{$name}-offset-10 {
-        margin-left: 83.33333333%;
-      }
-
-      .col-#{$name}-offset-11 {
-        margin-left: 91.66666667%;
+        .col-#{$name}-offset-#{$j - 1} {
+          margin-left: $division * ($j - 1)%;
+        }
       }
 
       .start-#{$name} {
@@ -250,13 +140,13 @@
       .flex-column-#{if($type == only, 'only-', '')}#{$name} {
         display: none;
 
-        @include $break ($type, $bottom, $i) {
+        @include break ($type, $sizes, $bottom, $i) {
           flex-direction: column;
         }
       }
 
       .hidden-#{if($type == only, 'only-', '')}#{$name} {
-        @include $break ($type, $bottom, $i) {
+        @include break ($type, $sizes, $bottom, $i) {
           display: none;
         }
       }
@@ -264,7 +154,7 @@
       .visible-#{if($type == only, 'only-', '')}#{$name} {
         display: none;
 
-        @include $break ($type, $bottom, $i) {
+        @include break ($type, $sizes, $bottom, $i) {
           display: initial;
         }
       }
@@ -273,7 +163,7 @@
         .visible-#{if($type == only, 'only-', '')}#{$name}-#{$visibility} {
           display: none;
 
-          @include $break ($type, $bottom, $i) {
+          @include break ($type, $sizes, $bottom, $i) {
             display: $visibility;
           }
         }
