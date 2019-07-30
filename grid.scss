@@ -97,7 +97,7 @@ $half-gutter-width: $gutter-width * 0.5;
     $bottom: map-get($breakpoint, 'size');
     $container-width: $bottom + gutter-width;
     $displays: flex, inline, inline-block, block;
-    $types: bottom, regular;
+    $types: bottom, only;
     $division: 1 / 12 * 100%;
 
     @include bottom ($bottom) {
@@ -183,7 +183,7 @@ $half-gutter-width: $gutter-width * 0.5;
 
     @each $type in $types {
       .flex-column-#{if($type == only, 'only-', '')}#{$name} {
-        display: none if($type == only, '!important', '');
+        display: none if($type == only, '!important', unquote(''));
 
         @include break ($type, $sizes, $bottom, $i) {
           flex-direction: column;
@@ -192,24 +192,24 @@ $half-gutter-width: $gutter-width * 0.5;
 
       .hidden-#{if($type == only, 'only-', '')}#{$name} {
         @include break ($type, $sizes, $bottom, $i) {
-          display: none if($type == only, '!important', '');
+          display: none if($type == only, '!important', unquote(''));
         }
       }
 
       .visible-#{if($type == only, 'only-', '')}#{$name} {
-        display: none if($type == only, '!important', '');
+        display: none !important;
 
         @include break ($type, $sizes, $bottom, $i) {
-          display: initial if($type == only, '!important', '');
+          display: initial if($type == only, '!important', unquote(''));
         }
       }
 
       @each $visibility in $displays {
         .visible-#{if($type == only, 'only-', '')}#{$name}-#{$visibility} {
-          display: none if($type == only, '!important', '');
+          display: none !important;
 
           @include break ($type, $sizes, $bottom, $i) {
-            display: $visibility if($type == only, '!important', '');
+            display: $visibility if($type == only, '!important', unquote(''));
           }
         }
       }
