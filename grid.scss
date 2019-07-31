@@ -1,5 +1,6 @@
 $gutter-width: 1em !default;
 $outer-margin: 2em !default;
+$columns: 12 !default;
 $gutter-compensation: $gutter-width * -0.5;
 $half-gutter-width: $gutter-width * 0.5;
 
@@ -23,14 +24,6 @@ $half-gutter-width: $gutter-width * 0.5;
   margin-left: $gutter-compensation;
 }
 
-.row.reverse {
-  flex-direction: row-reverse;
-}
-
-.col.reverse {
-  flex-direction: column-reverse;
-}
-
 .flex-center {
   justify-content: center !important;
   align-items: center !important;
@@ -48,8 +41,14 @@ $half-gutter-width: $gutter-width * 0.5;
   flex-direction: column;
 }
 
+@each $class, $prop in (col: column, row: row) {
+  .#{$class}.reverse {
+    flex-direction: #{$prop}-reverse;
+  }
+}
+
 @mixin bottom ($size) {
-  @if ($size == 0) {
+  @if ($size == '0') {
     @content;
   } @else {
     @media only screen and (min-width: $size) {
@@ -61,18 +60,18 @@ $half-gutter-width: $gutter-width * 0.5;
 @mixin only ($sizes, $i) {
   @if ($i == 1) {
     $next: nth($sizes, 2);
-    @media (max-width: map-get($next, 'size')) {
+    @media (max-width: nth($next, 2)) {
       @content;
     }
   } @else if (length($sizes) > $i) {
     $next: nth($sizes, $i + 1);
     $current: nth($sizes, $i);
-    @media (min-width: map-get($current, 'size')) and (max-width: map-get($next, 'size') - .001) {
+    @media (min-width: nth($current, 2)) and (max-width: nth($next, 2) - .001) {
       @content;
     }
   } @else {
     $current: nth($sizes, $i);
-    @media (min-width: map-get($current, 'size')) {
+    @media (min-width: nth($current, 2)) {
       @content;
     }
   }
@@ -91,14 +90,10 @@ $half-gutter-width: $gutter-width * 0.5;
 }
 
 @mixin grid ($sizes) {
-  @for $i from 1 through length($sizes) {
-    $breakpoint: nth($sizes, $i);
-    $name: map-get($breakpoint, 'name');
-    $bottom: map-get($breakpoint, 'size');
-    $container-width: $bottom + gutter-width;
-    $displays: flex, inline, inline-block, block;
-    $types: bottom, only;
-    $division: 1 / 12 * 100%;
+  @each $name, $bottom in $sizes {
+    $i: index(($sizes), ($name $bottom));
+    $container-width: $bottom + $gutter-width;
+    $division: 1 / $columns * 100%;
 
     @include bottom ($bottom) {
       @if ($i != 1) {
@@ -108,7 +103,7 @@ $half-gutter-width: $gutter-width * 0.5;
       }
 
       $col-list: null;
-      @for $k from 1 through 12 {
+      @for $k from 1 through $columns {
         $col-list: append($col-list, unquote(".col-#{$name}-#{$k}, .col-#{$name}-offset-#{$k - 1}"), comma);
       }
 
@@ -126,7 +121,7 @@ $half-gutter-width: $gutter-width * 0.5;
       }
 
 
-      @for $j from 1 through 12 {
+      @for $j from 1 through $columns {
         .col-#{$name}-#{$j} {
           flex-basis: $division * $j;
           max-width: $division * $j;
@@ -137,51 +132,33 @@ $half-gutter-width: $gutter-width * 0.5;
         }
       }
 
-      .start-#{$name} {
-        justify-content: flex-start;
-        text-align: start;
+      @each $alignment in start, center, end {
+        .#{$alignment}-#{$name} {
+          justify-content: flex-#{$alignment};
+          text-align: $alignment;
+        }
       }
 
-      .center-#{$name} {
-        justify-content: center;
-        text-align: center;
+      @each $position, $alignment in (top: 'flex-start', middle: 'center', bottom: 'flex-end') {
+        .#{$position}-#{$name} {
+          align-items: $alignment;
+        }
       }
 
-      .end-#{$name} {
-        justify-content: flex-end;
-        text-align: end;
+      @each $justification in around, between {
+        .#{$justification}-#{$name} {
+          justify-content: space-#{$justification};
+        }
       }
 
-      .top-#{$name} {
-        align-items: flex-start;
-      }
-
-      .middle-#{$name} {
-        align-items: center;
-      }
-
-      .bottom-#{$name} {
-        align-items: flex-end;
-      }
-
-      .around-#{$name} {
-        justify-content: space-around;
-      }
-
-      .between-#{$name} {
-        justify-content: space-between;
-      }
-
-      .first-#{$name} {
-        order: -1;
-      }
-
-      .last-#{$name} {
-        order: 1;
+      @each $order, $number in (first: -1, last: 1) {
+        .#{$order}-#{$name} {
+          order: $number;
+        }
       }
     }
 
-    @each $type in $types {
+    @each $type in bottom, only {
       .flex-column-#{if($type == only, 'only-', '')}#{$name} {
         display: none !important;
 
@@ -190,21 +167,16 @@ $half-gutter-width: $gutter-width * 0.5;
         }
       }
 
-      .hidden-#{if($type == only, 'only-', '')}#{$name} {
-        @include break ($type, $sizes, $bottom, $i) {
-          display: none !important;
+      @each $display, $prop in (hidden: none, visible: initial) {
+        .#{$display}-#{if($type == only, 'only-', '')}#{$name} {
+          @if $display == visible { display: none !important; }
+          @include break ($type, $sizes, $bottom, $i) {
+            display: $prop !important;
+          }
         }
       }
 
-      .visible-#{if($type == only, 'only-', '')}#{$name} {
-        display: none !important;
-
-        @include break ($type, $sizes, $bottom, $i) {
-          display: initial !important;
-        }
-      }
-
-      @each $visibility in $displays {
+      @each $visibility in flex, inline, inline-block, block {
         .visible-#{if($type == only, 'only-', '')}#{$name}-#{$visibility} {
           display: none !important;
 
