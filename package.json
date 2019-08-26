@@ -1,6 +1,6 @@
 {
   "name": "flexbox-custom-grid",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "A SASS based grid builder based on flexbox grid",
   "main": "index.js",
   "scripts": {
