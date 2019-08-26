@@ -63,33 +63,22 @@ $half-gutter-width: $gutter-width * 0.5;
     @media (max-width: nth($next, 2)) {
       @content;
     }
+  } @else if (length($sizes) == $i) {
+    $current: nth($sizes, $i);
+    @media (min-width: nth($current, 2)) {
+      @content;
+    }
   } @else if (length($sizes) > $i) {
     $next: nth($sizes, $i + 1);
     $current: nth($sizes, $i);
     @media (min-width: nth($current, 2)) and (max-width: nth($next, 2) - .001) {
       @content;
     }
-  } @else {
-    $current: nth($sizes, $i);
-    @media (min-width: nth($current, 2)) {
-      @content;
-    }
-  }
-}
-
-@mixin break ($type, $sizes, $bottom, $i) {
-  @if ($type == bottom) {
-    @include bottom ($bottom) {
-      @content;
-    }
-  } @else {
-    @include only ($sizes, $i) {
-      @content;
-    }
   }
 }
 
 @mixin grid ($sizes) {
+  $none-list: null;
   @each $name, $bottom in $sizes {
     $i: index(($sizes), ($name $bottom));
     $container-width: $bottom + $gutter-width;
@@ -100,6 +89,23 @@ $half-gutter-width: $gutter-width * 0.5;
         .container {
           width: $container-width;
         }
+      }
+
+      .col-#{$name} {
+        flex-grow: 1;
+        flex-basis: 0;
+        max-width: 100%;
+      }
+
+      .flex-column-#{$name} {
+        flex-direction: column;
+      }
+
+      .col-#{$name}-reset {
+        flex: initial;
+        flex-basis: initial;
+        flex-grow: initial;
+        max-width: initial;
       }
 
       $col-list: null;
@@ -113,13 +119,6 @@ $half-gutter-width: $gutter-width * 0.5;
         padding-right: $half-gutter-width;
         padding-left: $half-gutter-width;
       }
-
-      .col-#{$name} {
-        flex-grow: 1;
-        flex-basis: 0;
-        max-width: 100%;
-      }
-
 
       @for $j from 1 through $columns {
         .col-#{$name}-#{$j} {
@@ -156,35 +155,50 @@ $half-gutter-width: $gutter-width * 0.5;
           order: $number;
         }
       }
-    }
-
-    @each $type in bottom, only {
-      .flex-column-#{if($type == only, 'only-', '')}#{$name} {
-        display: none !important;
-
-        @include break ($type, $sizes, $bottom, $i) {
-          flex-direction: column;
-        }
-      }
 
       @each $display, $prop in (hidden: none, visible: initial) {
-        .#{$display}-#{if($type == only, 'only-', '')}#{$name} {
-          @if $display == visible { display: none !important; }
-          @include break ($type, $sizes, $bottom, $i) {
-            display: $prop !important;
-          }
+        .#{$display}-#{$name} {
+          display: $prop !important;
         }
       }
 
       @each $visibility in flex, inline, inline-block, block {
-        .visible-#{if($type == only, 'only-', '')}#{$name}-#{$visibility} {
-          display: none !important;
+        .visible-#{$name}-#{$visibility} {
+          display: $visibility !important;
+        }
+      }
+    }
+    @include only ($sizes, $i) {
+      @each $type in bottom, only {
+        $none-list: append($none-list, unquote(".flex-column-#{if($type == only, 'only-', '')}#{$name}"), comma);
+        @if ($type == 'only') {
+          .flex-column-#{if($type == only, 'only-', '')}#{$name} {
+            flex-direction: column;
+          }
+        }
 
-          @include break ($type, $sizes, $bottom, $i) {
-            display: $visibility !important;
+        @each $display, $prop in (hidden: none, visible: initial) {
+          @if $display == visible { $none-list: append($none-list, unquote(".#{$display}-#{if($type == only, 'only-', '')}#{$name}"), comma); }
+          @if ($type == 'only') {
+            .#{$display}-#{if($type == only, 'only-', '')}#{$name} {
+              display: $prop !important;
+            }
+          }
+        }
+
+        @each $visibility in flex, inline, inline-block, block {
+          $none-list: append($none-list, unquote(".visible-#{if($type == only, 'only-', '')}#{$name}-#{$visibility}"), comma);
+          @if ($type == 'only') {
+            .visible-#{if($type == only, 'only-', '')}#{$name}-#{$visibility} {
+              display: $visibility !important;
+            }
           }
         }
       }
     }
+  }
+
+  #{$none-list} {
+    display: none !important;
   }
 }
