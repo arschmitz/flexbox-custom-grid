@@ -37,14 +37,12 @@ $half-gutter-width: $gutter-width * 0.5;
   align-items: center !important;
 }
 
-.flex-column {
+.column {
   flex-direction: column;
 }
 
-@each $class, $prop in (col: column, row: row) {
-  .#{$class}.reverse {
-    flex-direction: #{$prop}-reverse;
-  }
+.reverse {
+  flex-direction: row-reverse;
 }
 
 @mixin bottom ($size) {
@@ -97,15 +95,19 @@ $half-gutter-width: $gutter-width * 0.5;
         max-width: 100%;
       }
 
-      .flex-column-#{$name} {
-        flex-direction: column;
-      }
-
       .col-#{$name}-reset {
         flex: initial;
         flex-basis: initial;
         flex-grow: initial;
         max-width: initial;
+      }
+
+      .flex-column-#{$name} {
+        flex-direction: column;
+      }
+
+      .reverse-#{$name} {
+        flex-direction: row-reverse;
       }
 
       $col-list: null;
@@ -171,11 +173,6 @@ $half-gutter-width: $gutter-width * 0.5;
     @include only ($sizes, $i) {
       @each $type in bottom, only {
         $none-list: append($none-list, unquote(".flex-column-#{if($type == only, 'only-', '')}#{$name}"), comma);
-        @if ($type == 'only') {
-          .flex-column-#{if($type == only, 'only-', '')}#{$name} {
-            flex-direction: column;
-          }
-        }
 
         @each $display, $prop in (hidden: none, visible: initial) {
           @if $display == visible { $none-list: append($none-list, unquote(".#{$display}-#{if($type == only, 'only-', '')}#{$name}"), comma); }
