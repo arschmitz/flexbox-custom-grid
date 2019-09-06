@@ -77,6 +77,26 @@ $half-gutter-width: $gutter-width * 0.5;
 
 @mixin grid ($sizes) {
   $none-list: null;
+
+  @each $name, $bottom in $sizes {
+    $i: index(($sizes), ($name $bottom));
+
+    @include only ($sizes, $i) {
+      @each $type in bottom, only {
+        $none-list: append($none-list, unquote(".flex-column-#{if($type == only, 'only-', '')}#{$name}"), comma);
+        $none-list: append($none-list, unquote(".visible-#{if($type == only, 'only-', '')}#{$name}"), comma);
+
+        @each $visibility in flex, inline, inline-block, block {
+          $none-list: append($none-list, unquote(".visible-#{if($type == only, 'only-', '')}#{$name}-#{$visibility}"), comma);
+        }
+      }
+    }
+  }
+
+  #{$none-list} {
+    display: none !important;
+  }
+
   @each $name, $bottom in $sizes {
     $i: index(($sizes), ($name $bottom));
     $container-width: $bottom + $gutter-width;
@@ -87,6 +107,18 @@ $half-gutter-width: $gutter-width * 0.5;
         .container {
           width: $container-width;
         }
+      }
+
+      $col-list: null;
+      @for $k from 1 through $columns {
+        $col-list: append($col-list, unquote(".col-#{$name}-#{$k}, .col-#{$name}-offset-#{$k - 1}"), comma);
+      }
+
+      #{append($col-list, unquote(".col-#{$name}"), comma)} {
+        box-sizing: border-box;
+        flex: 0 0 auto;
+        padding-right: $half-gutter-width;
+        padding-left: $half-gutter-width;
       }
 
       .col-#{$name} {
@@ -110,18 +142,6 @@ $half-gutter-width: $gutter-width * 0.5;
         flex-direction: row-reverse;
       }
 
-      $col-list: null;
-      @for $k from 1 through $columns {
-        $col-list: append($col-list, unquote(".col-#{$name}-#{$k}, .col-#{$name}-offset-#{$k - 1}"), comma);
-      }
-
-      #{append($col-list, unquote(".col-#{$name}"), comma)} {
-        box-sizing: border-box;
-        flex: 0 0 auto;
-        padding-right: $half-gutter-width;
-        padding-left: $half-gutter-width;
-      }
-
       @for $j from 1 through $columns {
         .col-#{$name}-#{$j} {
           flex-basis: $division * $j;
@@ -135,14 +155,14 @@ $half-gutter-width: $gutter-width * 0.5;
 
       @each $alignment in start, center, end {
         .#{$alignment}-#{$name} {
-          justify-content: flex-#{$alignment};
+          justify-content: #{if($alignment != center, 'flex-', '')}#{$alignment};
           text-align: $alignment;
         }
       }
 
       @each $position, $alignment in (top: 'flex-start', middle: 'center', bottom: 'flex-end') {
         .#{$position}-#{$name} {
-          align-items: $alignment;
+          align-items: unquote($alignment);
         }
       }
 
@@ -172,10 +192,7 @@ $half-gutter-width: $gutter-width * 0.5;
     }
     @include only ($sizes, $i) {
       @each $type in bottom, only {
-        $none-list: append($none-list, unquote(".flex-column-#{if($type == only, 'only-', '')}#{$name}"), comma);
-
         @each $display, $prop in (hidden: none, visible: initial) {
-          @if $display == visible { $none-list: append($none-list, unquote(".#{$display}-#{if($type == only, 'only-', '')}#{$name}"), comma); }
           @if ($type == 'only') {
             .#{$display}-#{if($type == only, 'only-', '')}#{$name} {
               display: $prop !important;
@@ -184,7 +201,6 @@ $half-gutter-width: $gutter-width * 0.5;
         }
 
         @each $visibility in flex, inline, inline-block, block {
-          $none-list: append($none-list, unquote(".visible-#{if($type == only, 'only-', '')}#{$name}-#{$visibility}"), comma);
           @if ($type == 'only') {
             .visible-#{if($type == only, 'only-', '')}#{$name}-#{$visibility} {
               display: $visibility !important;
@@ -193,9 +209,5 @@ $half-gutter-width: $gutter-width * 0.5;
         }
       }
     }
-  }
-
-  #{$none-list} {
-    display: none !important;
   }
 }
